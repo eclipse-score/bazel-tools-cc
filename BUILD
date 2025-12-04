@@ -10,41 +10,32 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-load("@score_cr_checker//:cr_checker.bzl", "copyright_checker")
-load("@score_dash_license_checker//:dash.bzl", "dash_license_checker")
-load("@score_docs_as_code//:docs.bzl", "docs")
-load("@score_format_checker//:macros.bzl", "use_format_targets")
-load("@score_starpls_lsp//:starpls.bzl", "setup_starpls")
+load("@score_tooling//:defs.bzl", "copyright_checker", "dash_license_checker")
 load("//:project_config.bzl", "PROJECT_CONFIG")
-
-setup_starpls(
-    name = "starpls_server",
-    visibility = ["//visibility:public"],
-)
 
 copyright_checker(
     name = "copyright",
     srcs = [
-        "src",
-        "tests",
+        "bazel",
+        "quality",
+        "scripts",
+        "test",
+        "third_party",
         "//:BUILD",
         "//:MODULE.bazel",
     ],
-    config = "@score_cr_checker//resources:config",
-    template = "@score_cr_checker//resources:templates",
+    config = "@score_tooling//cr_checker/resources:config",
+    template = "@score_tooling//cr_checker/resources:templates",
     visibility = ["//visibility:public"],
 )
 
 dash_license_checker(
-    src = "//examples:cargo_lock",
+    src = "//third_party/pip:requirement_locks",
     file_type = "",  # let it auto-detect based on project_config
     project_config = PROJECT_CONFIG,
     visibility = ["//visibility:public"],
 )
 
-# Add target for formatting checks
-use_format_targets()
-
-docs(
-    source_dir = "docs",
-)
+exports_files([
+    "pyproject.toml",
+])

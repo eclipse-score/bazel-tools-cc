@@ -1,0 +1,30 @@
+common --lockfile_mode=off
+common --enable_platform_specific_config
+
+common --registry=https://bcr.bazel.build/
+common --registry=https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/
+
+common:use_workspace_mode --noenable_bzlmod
+common:use_workspace_mode --enable_workspace
+
+common --flag_alias=python=@rules_python//python/config_settings:python_version
+build:python_3_12 --python=3.12
+build --config=python_3_12
+
+build:clang_tidy --@score_bazel_tools_cc//quality:quality_clang_tidy_config=//:awesome_clang_tidy_config
+build:clang_tidy --aspects=@score_bazel_tools_cc//quality:defs.bzl%quality_clang_tidy_aspect
+build:clang_tidy --build_tag_filters="-tidy_suite"
+build:clang_tidy --force_pic
+build:clang_tidy --incompatible_enable_cc_toolchain_resolution
+build:clang_tidy --output_groups=clang_tidy_output
+build:clang_tidy --verbose_failures
+
+build:clang_tidy_win --@score_bazel_tools_cc//quality:quality_clang_tidy_config=//:win_clang_tidy_config
+build:clang_tidy_win --aspects=@score_bazel_tools_cc//quality:defs.bzl%quality_clang_tidy_aspect
+build:clang_tidy_win --build_tag_filters="-tidy_suite"
+build:clang_tidy_win --output_groups=clang_tidy_output
+build:clang_tidy_win --verbose_failures
+
+build:clang_format --output_groups=clang_format_output
+build:clang_format --aspects=@score_bazel_tools_cc//quality:defs.bzl%clang_format_aspect
+build:clang_format --@score_bazel_tools_cc//quality:clang_format_config=//:awesome_clang_format_config

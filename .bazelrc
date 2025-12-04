@@ -1,9 +1,65 @@
-build --java_language_version=17
-build --tool_java_language_version=17
-build --java_runtime_version=remotejdk_17
-build --tool_java_runtime_version=remotejdk_17
+common --lockfile_mode=off
+common --enable_platform_specific_config
+common --java_runtime_version=remotejdk_11
+
+common --registry=https://bcr.bazel.build/
+common --registry=https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/
+
+build --incompatible_enable_cc_toolchain_resolution
+build --incompatible_default_to_explicit_init_py
+build --verbose_failures
 
 test --test_output=errors
 
-common --registry=https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/
-common --registry=https://bcr.bazel.build
+common:use_workspace_mode --noenable_bzlmod
+common:use_workspace_mode --enable_workspace
+# Disable hermetic tmp feature
+# The hermetic tmp feature was enabled by default in Bazel 7.0.0, but it is causing issues with bazel coverage and QAC runner.
+# This feature was improved in Bazel 7.2.0 (see https://github.com/bazelbuild/bazel/pull/22407).
+# Therefore, this flag can be removed after upgrading Bazel to version 7.2.0 or newer.
+build --noincompatible_sandbox_hermetic_tmp
+
+coverage --combined_report=lcov
+coverage --compilation_mode=dbg
+coverage --instrument_test_targets
+coverage --instrumentation_filter="[:]"
+
+# Python toolchain configurations
+common --flag_alias=python=@rules_python//python/config_settings:python_version
+build:python_3_8 --python=3.8
+build:python_3_9 --python=3.9
+build:python_3_10 --python=3.10
+build:python_3_11 --python=3.11
+build:python_3_12 --python=3.12
+build --config=python_3_12
+
+common --flag_alias=use_internal_toolchains=//bazel/toolchains/python:internal_toolchains
+build:use_internal_toolchains --use_internal_toolchains=True
+build:do_not_use_internal_toolchains --use_internal_toolchains=False
+build --config=use_internal_toolchains
+
+# Pylint configuration
+build:pylint --output_groups=python_tool_output
+build:pylint --aspects=@bazel_tools_python//quality:defs.bzl%pylint_aspect
+
+# Black configuration
+build:black --output_groups=python_tool_output
+build:black --aspects=@bazel_tools_python//quality:defs.bzl%black_aspect
+
+# Isort configuration
+build:isort --output_groups=python_tool_output
+build:isort --aspects=@bazel_tools_python//quality:defs.bzl%isort_aspect
+
+# Mypy configuration
+build:mypy --output_groups=python_tool_output
+build:mypy --aspects=@bazel_tools_python//quality:defs.bzl%mypy_aspect
+
+# Ruff configuration
+build:ruff_check --output_groups=python_tool_output
+build:ruff_check --aspects=@bazel_tools_python//quality:defs.bzl%ruff_check_aspect
+build:ruff_format --output_groups=python_tool_output
+build:ruff_format --aspects=@bazel_tools_python//quality:defs.bzl%ruff_format_aspect
+
+# Clang-format configuration
+build:clang_format --output_groups=clang_format_output
+build:clang_format --aspects=@score_bazel_tools_cc//quality:defs.bzl%clang_format_aspect

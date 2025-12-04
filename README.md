@@ -1,114 +1,104 @@
+# Bazel Tools CC
 
-# C++ & Rust Bazel Template Repository
+This repository contains custom bazel quality tooling for C/C++.
 
-This repository serves as a **template** for setting up **C++ and Rust projects** using **Bazel**.
-It provides a **standardized project structure**, ensuring best practices for:
+- [Offered Tools](#offered-tools)
+- [How to use bazel-tools-cc](#how-to-use-btcc)
+  - [Requirements](#requirements)
+  - [Select python pip hub version](#select-python-pip-hub-version)
+  - [Using WORKSPACE](#using-workspace)
+  - [Using bzlmod](#using-bzlmod)
+- [Contributing](#contributing)
 
-- **Build configuration** with Bazel.
-- **Testing** (unit and integration tests).
-- **Documentation** setup.
-- **CI/CD workflows**.
-- **Development environment** configuration.
+## Offered Tools
 
----
+Each offered tool has its own README document and can be independently activated and configured.
 
-## 📂 Project Structure
+|                          Tool                          |      Tool Type       | Bazel Type | Supported Languages | Workspace | Bzlmod |
+| :----------------------------------------------------: | :------------------: | :--------: | :-----------------: | :-------: | :----: |
+|   [clang-tidy](quality/private/clang_tidy/README.md)   | Static code analyzer |   aspect   |       C, C++        |    yes    |  yes   |
+| [clang-format](quality/private/clang_format/README.md) |    Code formatter    |   aspect   |       C, C++        |    yes    |  yes   |
 
-| File/Folder                         | Description                                       |
-| ----------------------------------- | ------------------------------------------------- |
-| `README.md`                         | Short description & build instructions            |
-| `src/`                              | Source files for the module                       |
-| `tests/`                            | Unit tests (UT) and integration tests (IT)        |
-| `examples/`                         | Example files used for guidance                   |
-| `docs/`                             | Documentation (Doxygen for C++ / mdBook for Rust) |
-| `.github/workflows/`                | CI/CD pipelines                                   |
-| `.vscode/`                          | Recommended VS Code settings                      |
-| `.bazelrc`, `MODULE.bazel`, `BUILD` | Bazel configuration & settings                    |
-| `project_config.bzl`                | Project-specific metadata for Bazel macros        |
-| `LICENSE.md`                        | Licensing information                             |
-| `CONTRIBUTION.md`                   | Contribution guidelines                           |
+## How to use Bazel Tools CC
 
----
+The [test subdirectory](test) is a workspace with a fully working setup.
 
-## 🚀 Getting Started
+The next sections explain the steps to achieve a proper config for each Bazel dependency manager but it is recommended to either use the test workspace blueprint and copy-paste what is needed.
 
-### 1️⃣ Clone the Repository
+### Requirements
 
-```sh
-git clone https://github.com/eclipse-score/YOUR_PROJECT.git
-cd YOUR_PROJECT
-```
+It's important to note that this repository does not supply python toolchains but only its pip dependencies. Therefore one must set up its own python toolchain. This repository supports major python versions from `3.8` to `3.12`.
 
-### 2️⃣ Build the Examples of module
+Additionaly, one must have the following bazel repositories already in place:
 
-> DISCLAIMER: Depending what module implements, it's possible that different
-> configuration flags needs to be set on command line.
+- bazel_skylib >= 1.7.1
+- rules_python >= 1.4.1
+- rules_shell >= 0.6.1
+- rules_cc >= 0.1.1 (only for Bazel 8)
+- com_google_protobuf >= v29.0 (only for Bazel 8 with Workspace mode)
+- score_bazel_tools_python >= 0.1.3
 
-To build all targets of the module the following command can be used:
+### Select python pip hub version
 
-```sh
-bazel build //src/...
-```
+To select the correct python dependecy version one only needs to set a `string_flag` under one's `.bazelrc` file.
 
-This command will instruct Bazel to build all targets that are under Bazel
-package `src/`. The ideal solution is to provide single target that builds
-artifacts, for example:
-
-```sh
-bazel build //src/<module_name>:release_artifacts
-```
-
-where `:release_artifacts` is filegroup target that collects all release
-artifacts of the module.
-
-> NOTE: This is just proposal, the final decision is on module maintainer how
-> the module code needs to be built.
-
-### 3️⃣ Run Tests
-
-```sh
-bazel test //tests/...
-```
-
----
-
-## 🛠 Tools & Linters
-
-The template integrates **tools and linters** from **centralized repositories** to ensure consistency across projects.
-
-- **C++:** `clang-tidy`, `cppcheck`, `Google Test`
-- **Rust:** `clippy`, `rustfmt`, `Rust Unit Tests`
-- **CI/CD:** GitHub Actions for automated builds and tests
-
----
-
-## 📖 Documentation
-
-- A **centralized docs structure** is planned.
-
----
-
-## ⚙️ `project_config.bzl`
-
-This file defines project-specific metadata used by Bazel macros, such as `dash_license_checker`.
-
-### 📌 Purpose
-
-It provides structured configuration that helps determine behavior such as:
-
-- Source language type (used to determine license check file format)
-- Safety level or other compliance info (e.g. ASIL level)
-
-### 📄 Example Content
+For example if one is using python `3.10`, one should select our python `3.10` dependencies by adding the following lines to the respective `.bazelrc` file.
 
 ```python
-PROJECT_CONFIG = {
-    "asil_level": "QM",  # or "ASIL-A", "ASIL-B", etc.
-    "source_code": ["cpp", "rust"]  # Languages used in the module
-}
+# .bazelrc
+
+common --flag_alias=python=@rules_python//python/config_settings:python_version
+common --python=3.10
 ```
 
-### 🔧 Use Case
+### Using WORKSPACE
 
-When used with macros like `dash_license_checker`, it allows dynamic selection of file types
- (e.g., `cargo`, `requirements`) based on the languages declared in `source_code`.
+Add this to your `WORKSPACE` file.
+
+```python
+# WORKSPACE
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "score_bazel_tools_cc",
+    sha256 = "<omitted>",
+    urls = ["<ommited>"],
+)
+
+load("@score_bazel_tools_cc//third_party:dependencies.bzl", score_bazel_tools_cc_dependencies = "dependencies")
+
+score_bazel_tools_cc_dependencies()
+
+load("@score_bazel_tools_cc//third_party:python_toolchains.bzl", score_bazel_tools_cc_python_toolchains = "python_toolchains")
+
+score_bazel_tools_cc_python_toolchains()
+
+load("@score_bazel_tools_cc//third_party:python_pip_parse.bzl", score_bazel_tools_cc_python_pip_parse = "python_pip_parse")
+
+score_bazel_tools_cc_python_pip_parse()
+
+load("@score_bazel_tools_cc//third_party:python_pip_hub.bzl", score_bazel_tools_cc_python_pip_hub = "python_pip_hub")
+
+score_bazel_tools_cc_python_pip_hub()
+```
+
+### Using bzlmod
+
+Add the https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/ registry to your known registries and add `score_bazel_tools_cc` to your `MODULE.bazel` file.
+
+```python
+# .bazelrc
+
+common --registry https://raw.githubusercontent.com/eclipse-score/bazel_registry/main/
+```
+
+```python
+# MODULE.bazel
+
+bazel_dep(name = "score_bazel_tools_cc", version = "<version>")
+```
+
+## Contributing
+
+Please check our [contributing guide](CONTRIBUTION.md).

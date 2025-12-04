@@ -1,0 +1,10 @@
+Checks: "-*,\
+  clang-analyzer-deadcode.DeadStores,\
+  readability-uppercase-literal-suffix,\
+  "
+
+HeaderFilterRegex: ".*"
+
+CheckOptions:
+  - key: IgnoredMacros
+    value: ""

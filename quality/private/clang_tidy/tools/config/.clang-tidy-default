@@ -1,0 +1,10 @@
+---
+Checks: "*,\
+  -llvm*,\
+  "
+
+HeaderFilterRegex: ".*"
+
+CheckOptions:
+  - key: IgnoredMacros
+    value: "TEST,INSTANTIATE,BENCHMARK,MATCHER"

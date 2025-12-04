@@ -1,0 +1,17 @@
+--- python/private/coverage.patch
++++ python/private/coverage.patch
+@@ -15,3 +15,14 @@
+ +sys.path.append(sys.path.pop(0))
+  from coverage.cmdline import main
+  sys.exit(main())
++
++--- a/coverage/config.py
+++++ b/coverage/config.py
++@@ -546,6 +546,7 @@
++     if config_file == ".coveragerc":
++         config_file = True
++     specified_file = (config_file is not True)
+++    specified_file = False
++     if not specified_file:
++         # No file was specified. Check COVERAGE_RCFILE.
++         rcfile = os.getenv("COVERAGE_RCFILE")
