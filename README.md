@@ -99,6 +99,38 @@ common --registry https://raw.githubusercontent.com/eclipse-score/bazel_registry
 bazel_dep(name = "score_bazel_tools_cc", version = "<version>")
 ```
 
+## Testing
+
+To run the tests, simply execute:
+
+```bash
+./scripts/run_all_tests.sh
+```
+
+This will run all the tests, linters, formaters, and checks to ensure everything is functioning correctly.
+
+Example Output:
+
+```
+Command Name                          | Status
+------------------------------------- | ----------
+tests (bzlmod mode and python 3.12)   | SUCCEEDED
+tests (bzlmod mode)                   | SUCCEEDED
+tests (bzlmod mode with experimental_cc_implementation_deps) | SUCCEEDED
+clang-format                          | SUCCEEDED
+ruff_check                            | SUCCEEDED
+ruff_format                           | SUCCEEDED
+pylint                                | SUCCEEDED
+black                                 | SUCCEEDED
+isort                                 | SUCCEEDED
+mypy                                  | SUCCEEDED
+tests (in test workspace)             | SUCCEEDED
+buildifier                            | SUCCEEDED
+eclipse copyright check               | SUCCEEDED
+security scan                         | SUCCEEDED
+------------------------------------- | ----------
+```
+
 ## Contributing
 
 Please check our [contributing guide](CONTRIBUTION.md).
