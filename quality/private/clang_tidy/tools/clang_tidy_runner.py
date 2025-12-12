@@ -153,7 +153,7 @@ def build_command(  # pylint: disable=too-many-arguments,too-many-locals
     compile_commands_file_path = prepare_compile_commands_args(clang_tidy_args, src_file, compile_commands_file)
     commands.extend(["-p", compile_commands_file_path])
 
-    return commands
+    return None
 
 
 def write_results(findings, src_file, arguments, checks, command, result):  # pylint: disable=too-many-arguments
