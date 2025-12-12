@@ -44,7 +44,7 @@ register_toolchains("@llvm_toolchain//:all")
 # Dependencies from score_bazel_tools_cc. #
 ###########################################
 
-bazel_dep(name = "score_bazel_tools_cc", version = "3.9.0", repo_name = "score_bazel_tools_cc")
+bazel_dep(name = "score_bazel_tools_cc", version = "0.1.0", repo_name = "score_bazel_tools_cc")
 local_path_override(
     module_name = "score_bazel_tools_cc",
     path = "..",
