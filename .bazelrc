@@ -1,4 +1,4 @@
-common --lockfile_mode=off
+common --lockfile_mode=update
 common --enable_platform_specific_config
 common --java_runtime_version=remotejdk_11
 
