@@ -1,3 +1,8 @@
+# DISCLAIMER
+
+> This repository is not longer actively maintained due to the unwillingness of the eclipse governing body to grant the maintainers with the permissions needed to approve and merge pull requests of one another.
+> As a consequence security vulnerabilities in the repository and its dependencies will not be fixed.
+
 # Bazel Tools CC
 
 This repository contains custom bazel quality tooling for C/C++.
