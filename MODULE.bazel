@@ -10,11 +10,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 # *******************************************************************************
-module(
-    name = "score_bazel_tools_cc",
-    version = "0.1.0",
-    compatibility_level = 0,
-)
+module(name = "score_bazel_tools_cc")
 
 ########################
 # Direct dependencies. #
